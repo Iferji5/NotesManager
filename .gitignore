@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entorno virtual (si lo tienes dentro del proyecto)
+venv/
+.venv/
+env/
+ENV/
+
+# Archivos de base de datos SQLite
+*.sqlite3
+
+# Archivos de migraciones (opcionalmente puedes conservarlas)
+# notes_app/migrations/
+
+# Archivos de logs
+*.log
+
+# Configuración local (si guardas settings locales)
+*.env
+.env
+
+# Archivos de PyCharm o VSCode
+.idea/
+.vscode/
+
+# Archivos estáticos compilados (si usas collectstatic)
+staticfiles/
+

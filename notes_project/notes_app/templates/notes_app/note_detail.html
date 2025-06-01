@@ -1,0 +1,136 @@
+{# notes_app/templates/notes_app/note_detail.html #}
+{% extends 'notes_app/base.html' %}
+{% load static %}
+
+{% block notes_content %}
+  {# ——————————————— Estilos específicos para “modo lector” ——————————————— #}
+  <style>
+    /* Contenedor principal de lectura */
+    .reader-container {
+      max-width: 700px;
+      width: 90%;
+      background: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      margin: 2rem auto 3rem; /* separa del top y da espacio abajo */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabecera pastel con título y botones */
+    .reader-header {
+      background-color: #b3d4fc; /* pastel‐blue */
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top-left-radius: 1rem;
+      border-top-right-radius: 1rem;
+    }
+    .reader-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #1d4ed8; /* azul más intenso */
+      font-weight: 600;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .action-buttons a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #fff;
+      color: #1d4ed8;
+      border: 1px solid #a0c4fc;
+      border-radius: 0.5rem;
+      padding: 0.4rem;
+      text-decoration: none;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .action-buttons a:hover {
+      background-color: #93c3f9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      color: #ffffff;
+    }
+    .action-buttons a svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Cuerpo del texto con scroll si excede 350px */
+    .reader-body {
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      color: #333333;
+      line-height: 1.6rem;
+      max-height: 350px;
+      overflow: auto;
+    }
+    .reader-body p {
+      margin-bottom: 1rem;
+    }
+
+    /* Pie de página con fecha y enlace */
+    .reader-footer {
+      padding: 0.75rem 1.5rem;
+      background-color: #f8f9fa;
+      font-size: 0.85rem;
+      color: #666666;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom-left-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+    }
+    .reader-footer a {
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 500;
+      transition: text-decoration 0.2s ease;
+    }
+    .reader-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  {# ——————————————— Contenido principal ——————————————— #}
+  <div class="reader-container">
+    {# Cabecera con título y botones Edit/Delete #}
+    <div class="reader-header">
+      <h2>{{ note.title }}</h2>
+      <div class="action-buttons">
+        {# Botón Edit (usa un icono de lápiz SVG) #}
+        <a href="{% url 'note_edit' note.pk %}" title="Edit Note">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M15.502 1.94a.5.5 0 0 1 0 .706l-1.439 1.44-2.121-2.12 1.44-1.439a.5.5 0 0 1 .707 0l1.413 1.413z"/>
+            <path d="M13.06 3.586L5.5 11.146V13.5h2.354l7.56-7.56-2.354-2.354z"/>
+            <path fill-rule="evenodd" d="M1 13.5V15h1.5l7.56-7.56-1.5-1.5L1 13.5zm1 1v-1.5L11.646 4.354l1.5 1.5L2 14.5z"/>
+          </svg>
+        </a>
+        {# Botón Delete (usa un icono de papelera SVG) #}
+        <a href="{% url 'note_delete' note.pk %}" title="Delete Note"
+           onclick="return confirm('¿Confirma que desea eliminar esta nota? Esta acción no se puede deshacer.');">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M5.5 5.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5z"/>
+            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2H5l.5-.5h4L11 2h2.5a1 1 0 0 1 1 1zm-3 .5V4H4.5v9a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V4.5H11v-.999H5.999v.999H5v-.999H4.5v.999H3.5v-.5a.5.5 0 0 1 .5-.5h1l.5-.5h4l.5.5h1a.5.5 0 0 1 .5.5z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    {# Cuerpo con el contenido de la nota #}
+    <div class="reader-body">
+      {{ note.content|linebreaksbr }}
+    </div>
+
+    {# Pie de página con fecha y “Back to Notes” #}
+    <div class="reader-footer">
+      <span>Last edited: {{ note.updated_at|date:"M d, Y H:i" }}</span>
+      <a href="{% url 'notes_list' %}">← Back to Notes</a>
+    </div>
+  </div>
+{% endblock %}
+

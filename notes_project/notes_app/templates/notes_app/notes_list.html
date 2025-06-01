@@ -1,0 +1,213 @@
+{# notes_app/templates/notes_app/notes_list.html #}
+{% extends 'notes_app/base.html' %}
+{% load static %}
+
+{% block notes_content %}
+  <!-- ==================== CONTENEDOR PRINCIPAL DE NOTAS ==================== -->
+  <div class="notes-wrapper">
+    <!-- Mensaje de bienvenida -->
+    <div class="welcome-msg">Hola, {{ user.username }} 👋</div>
+
+    <!-- Botón para crear nueva nota -->
+    <a href="{% url 'note_create' %}"
+       class="btn-new-note mb-4">
+      + New Note
+    </a>
+
+    {% if notes %}
+      <!-- ===================================== -->
+      <!-- Este div será nuestro “lienzo” de notas -->
+      <div id="notes-container" class="notes-grid">
+        {% for note in notes %}
+          <div class="note-card"
+               data-note-id="{{ note.pk }}"
+               data-pos-x="{{ note.pos_x }}"
+               data-pos-y="{{ note.pos_y }}">
+            <div class="note-body">
+              <h5>{{ note.title }}</h5>
+              <p>{{ note.content|truncatechars:80 }}</p>
+            </div>
+            <div class="note-footer">
+              <div class="btn-group mt-2">
+                <a href="{% url 'note_detail' note.pk %}"
+                   class="btn-pastel btn-pastel-secondary">
+                  View
+                </a>
+                <a href="{% url 'note_edit' note.pk %}"
+                   class="btn-pastel btn-pastel-primary">
+                  Edit
+                </a>
+                <a href="{% url 'note_delete' note.pk %}"
+                   class="btn-pastel btn-pastel-danger">
+                  Delete
+                </a>
+              </div>
+              <small class="text-muted">
+                {{ note.updated_at|date:"M d, Y H:i" }}
+              </small>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <!-- ===================================== -->
+    {% else %}
+      <p class="text-center mt-5">
+        No tienes notas aún.
+        <a href="{% url 'note_create' %}" class="text-primary">
+          Crea tu primera nota
+        </a>.
+      </p>
+    {% endif %}
+  </div>
+  <!-- ====================================================================== -->
+
+  {# Campo oculto para CSRF, necesario para el fetch en JavaScript #}
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+  <!-- ================ JAVASCRIPT PARA COLORES ALEATORIOS + DRAG & DROP ================ -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1) Lista de nombres de clases pastel definidas en base.html
+      const pastelClasses = [
+        'bg-pastel-pink',
+        'bg-pastel-yellow',
+        'bg-pastel-green',
+        'bg-pastel-blue',
+        'bg-pastel-lavender'
+      ];
+
+      // 2) Obtenemos el contenedor y todas las tarjetas .note-card
+      const container = document.getElementById('notes-container');
+      const cards = Array.from(container.querySelectorAll('.note-card'));
+
+      // 3) A cada tarjeta le asignamos UN color aleatorio de la lista
+      cards.forEach(card => {
+        const randomIndex = Math.floor(Math.random() * pastelClasses.length);
+        card.classList.add(pastelClasses[randomIndex]);
+      });
+
+      // 4) Ahora calculamos la posición inicial de cada tarjeta en el grid o desde la BD
+      cards.forEach(card => {
+        const storedX = parseInt(card.getAttribute('data-pos-x'), 10);
+        const storedY = parseInt(card.getAttribute('data-pos-y'), 10);
+
+        if (!isNaN(storedX) && !isNaN(storedY) && (storedX !== 0 || storedY !== 0)) {
+          // Posición persistida en la base de datos
+          card.style.position = 'absolute';
+          card.style.left     = storedX + 'px';
+          card.style.top      = storedY + 'px';
+
+          // Fijamos el tamaño actual para evitar cambios al pasar a absolute
+          const rect = card.getBoundingClientRect();
+          card.style.width  = rect.width + 'px';
+          card.style.height = rect.height + 'px';
+          card.style.cursor = 'grab';
+          card.style.userSelect = 'none';
+        } else {
+          // Cálculo desde la grilla inicial
+          const rect       = card.getBoundingClientRect();
+          const parentRect = container.getBoundingClientRect();
+          const offsetX = rect.left - parentRect.left;
+          const offsetY = rect.top  - parentRect.top;
+
+          card.style.position    = 'absolute';
+          card.style.left        = offsetX + 'px';
+          card.style.top         = offsetY + 'px';
+          card.style.cursor      = 'grab';
+          card.style.userSelect  = 'none';
+
+          // Fijar ancho/alto original
+          card.style.width  = rect.width + 'px';
+          card.style.height = rect.height + 'px';
+        }
+      });
+
+      // 5) Convertimos el contenedor padre en position:relative y fijamos su altura
+      container.style.position = 'relative';
+      container.style.height   = container.getBoundingClientRect().height + 'px';
+      container.style.display  = 'block';
+
+      // 6) Variables de estado para el arrastre
+      let draggedCard = null;
+      let startX      = 0, startY = 0;
+      let initialLeft = 0, initialTop = 0;
+
+      // 7) Cuando el usuario presiona clic sobre una tarjeta
+      function onMouseDown(e) {
+        const card = e.target.closest('.note-card');
+        if (!card) return;
+
+        draggedCard = card;
+        draggedCard.style.cursor = 'grabbing';
+        startX      = e.clientX;
+        startY      = e.clientY;
+        initialLeft = parseFloat(draggedCard.style.left);
+        initialTop  = parseFloat(draggedCard.style.top);
+
+        // Prevenir selección de texto mientras arrastra
+        e.preventDefault();
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      }
+
+      // 8) Mientras el usuario arrastra
+      function onMouseMove(e) {
+        if (!draggedCard) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        draggedCard.style.left = (initialLeft + dx) + 'px';
+        draggedCard.style.top  = (initialTop  + dy) + 'px';
+      }
+
+      // 9) Cuando el usuario suelta el botón
+      async function onMouseUp(e) {
+        if (!draggedCard) return;
+
+        // Restaurar el cursor
+        draggedCard.style.cursor = 'grab';
+
+        // Obtener el ID de la nota y las coordenadas finales
+        const noteId = draggedCard.getAttribute('data-note-id');
+        const finalX = parseInt(draggedCard.style.left, 10);
+        const finalY = parseInt(draggedCard.style.top, 10);
+
+        // Recuperar el token CSRF del DOM
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Enviar la nueva posición al servidor
+        try {
+          await fetch("{% url 'update_note_position' %}", {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+              note_id: noteId,
+              pos_x: finalX,
+              pos_y: finalY
+            })
+          });
+        } catch (err) {
+          console.error("Error al guardar posición:", err);
+        }
+
+        // Limpiar la referencia y quitar los listeners
+        draggedCard = null;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      // 10) Asociamos el evento mousedown a cada tarjeta .note-card
+      cards.forEach(card => {
+        card.addEventListener('mousedown', onMouseDown);
+      });
+    });
+  </script>
+  <!-- ========================================================================================= -->
+
+{% endblock %}
+
+

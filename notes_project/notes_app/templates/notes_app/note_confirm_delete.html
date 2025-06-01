@@ -1,0 +1,106 @@
+{% extends 'notes_app/base.html' %}
+{% load static %}
+
+{% block notes_content %}
+
+  <style>
+    /* Hover para el botón “Delete” (rojo pastel más oscuro) */
+    .btn-pastel-danger:hover {
+      background-color: #ffb3b9 !important;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    }
+    /* Hover para el botón “Cancel” (gris pastel más oscuro) */
+    .btn-pastel-secondary:hover {
+      background-color: #b8bac0 !important;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    }
+  </style>
+
+
+  <div class="note-container">
+
+
+    <div class="tabs-list" style="justify-content: center;">
+      <span class="active" style="
+          background-color: #fff9c4;
+          color: #1f1f1f;
+          padding: 0.4rem 0.8rem;
+          border-radius: 0.3rem 0.3rem 0 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          font-weight: 600;
+          font-size: 0.95rem;
+        ">
+        Delete Note
+      </span>
+    </div>
+
+
+    <div class="center-card" style="
+         max-width: 500px;
+         width: 90%;
+         padding: 1.25rem;
+         border-radius: 0 0 0.75rem 0.75rem;
+         background: #fdfdfd;
+         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+       ">
+      {# Formulario que realiza la petición POST para borrar la nota #}
+      <form method="post" onsubmit="return confirm('Precaución: esta acción eliminará la nota de forma permanente. ¿Deseas continuar?');">
+        {% csrf_token %}
+        <p style="
+             font-size: 1rem;
+             color: #333;
+             margin-bottom: 1.25rem;
+           ">
+          ¿Seguro que deseas <strong>eliminar</strong> la nota:
+          <em style="color: #555;">“{{ note.title }}”</em>?
+        </p>
+
+        <div style="
+             display: flex;
+             justify-content: center;
+             gap: 1rem;
+             margin-bottom: 1rem;
+           ">
+          {# Botón “Confirm Delete” en rojo pastel con hover #}
+          <button type="submit"
+                  class="btn-pastel btn-pastel-danger"
+                  style="
+                    font-size: 0.95rem;
+                    padding: 0.5rem 1rem;
+                    border-radius: 0.6rem;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                    min-width: 100px;
+                  ">
+            Delete
+          </button>
+
+          {# Enlace “Cancel” que regresa a la lista sin borrar #}
+          <a href="{% url 'notes_list' %}"
+             class="btn-pastel btn-pastel-secondary"
+             style="
+               font-size: 0.95rem;
+               padding: 0.5rem 1rem;
+               border-radius: 0.6rem;
+               box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+               min-width: 100px;
+               text-align: center;
+             ">
+            Cancel
+          </a>
+        </div>
+      </form>
+
+      {# Enlace adicional “Back to Notes” #}
+      <div class="auth-switch" style="text-align: center;">
+        <a href="{% url 'notes_list' %}" style="
+             color: #1d4ed8;
+             text-decoration: none;
+             font-weight: 500;
+             font-size: 0.9rem;
+           ">
+          ← Back to Notes
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

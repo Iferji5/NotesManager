@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends 'notes_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 400px; text-align: center;">
+  <h2>Log Out</h2>
+  <p>Are you sure you want to log out?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Log Out</button>
+    <a href="{% url 'notes_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+
+</body>
+</html>

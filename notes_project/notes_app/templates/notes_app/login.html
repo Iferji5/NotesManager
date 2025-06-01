@@ -1,0 +1,168 @@
+{% extends 'notes_app/base.html' %}
+{% load static %}
+
+{% block auth_content %}
+  <!-- ====== ESTILOS ESPECÍFICOS PARA LOGIN (alinear verticalmente) ====== -->
+  <style>
+    /* ----------------------------------------
+       1. Contenedor pastel con hover
+       ---------------------------------------- */
+    .note-container .center-card {
+      max-width: 300px;
+      padding: 1rem 1.25rem;
+      background-color: #FFFBEC;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      margin: 0 auto;                       /* centrado horizontal */
+    }
+    .note-container .center-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+    }
+
+    /* ----------------------------------------
+       2. Título centrado
+       ---------------------------------------- */
+    .note-container .center-card h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
+      color: #343A40;
+      font-weight: 600;
+    }
+
+    /* ----------------------------------------
+       3. Cada bloque (label + input) se alinea verticalmente
+       ---------------------------------------- */
+    .note-container .center-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;  /* espacio vertical entre bloques */
+    }
+    .note-container .center-card form .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .note-container .center-card form .form-group label {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: #4A4A4A;
+      font-size: 0.95rem;
+    }
+    .note-container .center-card form .form-group input {
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 1px solid #CED4DA;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+    .note-container .center-card form .form-group input:focus {
+      box-shadow: 0 0 0 0.2rem rgba(59, 153, 252, 0.25);
+      border-color: #3B99FC;
+    }
+
+    /* ----------------------------------------
+       4. Botón login pastel
+       ---------------------------------------- */
+    .note-container .center-card .btn-pastel-primary {
+      margin-top: 0.5rem;
+      background-color: #B3D4FC;
+      color: #1D4ED8;
+      border-color: #A0C4FC;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      width: 100%;
+    }
+    .note-container .center-card .btn-pastel-primary:hover {
+      background-color: #93C3F9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ----------------------------------------
+       5. Enlace “Sign Up” al final
+       ---------------------------------------- */
+    .note-container .center-card .auth-switch {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    .note-container .center-card .auth-switch a {
+      color: #1D4ED8;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .note-container .center-card .auth-switch a:hover {
+      text-decoration: underline;
+    }
+
+    /* ----------------------------------------
+       6. Pestañas (Log In / Sign Up)
+       ---------------------------------------- */
+    .note-container .tabs-list {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+    .note-container .tabs-list a {
+      text-decoration: none;
+      font-weight: 600;
+      color: #454545;
+      background-color: #fff9c4;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.3rem 0.3rem 0 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.2s ease, color 0.2s ease;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    .note-container .tabs-list a.active {
+      background-color: #ffeb3b;
+      color: #1f1f1f;
+    }
+    .note-container .tabs-list a:hover {
+      background-color: #fff176;
+      color: #1f1f1f;
+    }
+  </style>
+  <!-- ========================================= -->
+
+  <!-- ====== CONTENIDO LOGIN ====== -->
+  <h2>Log In</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="text-danger mb-2">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="{{ form.username.id_for_label }}">Username:</label>
+      {{ form.username }}
+      {% for err in form.username.errors %}
+        <div class="text-danger">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.password.id_for_label }}">Password:</label>
+      {{ form.password }}
+      {% for err in form.password.errors %}
+        <div class="text-danger">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn-pastel btn-pastel-primary">
+      Log In
+    </button>
+
+    <div class="auth-switch">
+      ¿No tienes cuenta? <a href="{% url 'signup' %}">Sign Up</a>
+    </div>
+  </form>
+{% endblock %}
+
+
