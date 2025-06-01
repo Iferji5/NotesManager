@@ -29,3 +29,4 @@ ENV/
 # Archivos estáticos compilados (si usas collectstatic)
 staticfiles/
 
+
