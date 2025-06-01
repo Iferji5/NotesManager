@@ -11,6 +11,11 @@
   - Log in and log out securely  
   - Password hashing and built-in Django authentication
 
+<p align="left">
+  <img src="notes_project/screenshots/logIn.png" alt="LogIn Page" width="300" height="250" style="display: inline-block; margin-right: 10px;"/>
+  <img src="notes_project/screenshots/signUp.png" alt="SignUp Page" width="300" height="250" style="display: inline-block;"/>
+</p>
+
 - **CRUD Operations for Notes**  
   - Create new notes (title + content)  
   - View note details in a “reader” mode  
@@ -28,6 +33,13 @@
   - Rounded corners and box-shadows for a “sticky note” aesthetic  
   - Responsive layout (mobile-friendly) using Bootstrap 5 utilities and custom CSS  
   - Reader mode with a pastel header, scrolling content area, and footer
+
+<p align="left">
+  <img src="notes_project/screenshots/createNote.png" alt="Create Note" width="300" height="200" style="object-fit: cover; margin-right: 10px;" />
+  <img src="notes_project/screenshots/view_note.png" alt="View Note" width="300" height="200" style="object-fit: cover; margin-right: 10px;" />
+  <img src="notes_project/screenshots/menu.png" alt="Menu Notes" width="300" height="200" style="object-fit: cover;" />
+</p>
+
 
 ---
 
@@ -59,3 +71,6 @@ Follow these steps to get the project running on your local machine:
    ```bash
    git clone https://github.com/Iferji5/NotesManager.git
    cd NotesManagement
+
+
+
